@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inequalities Practice Game</title>
+  <style>
+    /* Embedded CSS Styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+    .container {
+      width: 90%;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .menu {
+      margin-top: 50px;
+    }
+    .menu h1 {
+      font-size: 36px;
+      margin-bottom: 30px;
+    }
+    .toggle-group {
+      margin-bottom: 20px;
+    }
+    .toggle-group label {
+      font-size: 20px;
+      margin-right: 10px;
+    }
+    .toggle-group select {
+      font-size: 18px;
+      padding: 5px 10px;
+    }
+    .menu-button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 22px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .menu-button:hover {
+      background-color: #1976D2;
+    }
+    .question-section {
+      margin-top: 50px;
+    }
+    .question-section h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .options-list button {
+      width: 80%;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #FFFFE0;
+      color: black;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+      position: relative;
+    }
+    .options-list button:hover {
+      background-color: #FFFACD;
+    }
+    .options-list button.correct {
+      background-color: #4CAF50 !important;
+      color: white;
+    }
+    .options-list button.incorrect {
+      background-color: #f44336 !important;
+      color: white;
+    }
+    .info-text {
+      margin-left: 10px;
+      font-size: 16px;
+      color: black;
+    }
+    .next-btn {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .next-btn:hover {
+      background-color: #1976D2;
+    }
+    .score-section {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+    .end-game-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .end-game-btn:hover {
+      background-color: #d32f2f;
+    }
+    .hidden {
+      display: none;
+    }
+    .instructions {
+      margin-top: 50px;
+      font-size: 18px;
+      text-align: left;
+      line-height: 1.5;
+    }
+    .instructions h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .back-btn {
+      padding: 10px 20px;
+      margin-top: 20px;
+      background-color: #555;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+    .back-btn:hover {
+      background-color: #333;
+    }
+  </style>
+  <!-- MathJax for rendering LaTeX -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div class="container">
+    <!-- Main Menu -->
+    <div id="mainMenu" class="menu">
+      <h1>Inequalities Practice Game</h1>
+      <div class="toggle-group">
+        <label for="orderSelect">Problem Order:</label>
+        <select id="orderSelect">
+          <option value="random">Random</option>
+          <option value="consecutive">Consecutive</option>
+        </select>
+      </div>
+      <div class="toggle-group">
+        <label for="lengthSelect">Game Length:</label>
+        <select id="lengthSelect">
+          <option value="5">5 Rounds</option>
+          <option value="10">10 Rounds</option>
+          <option value="20">20 Rounds</option>
+          <option value="max">MAX</option>
+        </select>
+      </div>
+      <button id="howToBtn" class="menu-button">How to Play</button>
+      <button id="playNowBtn" class="menu-button">Play Now</button>
+    </div>
+
+    <!-- Instructions Screen -->
+    <div id="instructionsScreen" class="instructions hidden">
+      <h2>How to Play</h2>
+      <p>This game will help you practice solving linear inequalities through a three-step process:</p>
+      <ol>
+        <li><strong>Combine like terms:</strong> Use addition and/or subtraction to move all x terms to the left side and all constant terms to the right side of the inequality.</li>
+        <li><strong>Isolate x:</strong> Use multiplication and/or division to cancel out the coefficient of x. Remember to switch the inequality direction if multiplying or dividing by a negative number.</li>
+        <li><strong>Interval notation:</strong> Write the solution to the inequality in interval notation.</li>
+      </ol>
+      <p>Answer correctly to earn points. Incorrect answers will deduct points. Try to achieve the highest possible score!</p>
+      <button id="backBtn" class="back-btn">Back to Menu</button>
+    </div>
+
+    <!-- Game Content -->
+    <div id="gameContent" class="hidden">
+      <div class="question-section">
+        <h1 id="questionText">Solve the Inequality:</h1>
+        <div id="integralDisplay"></div>
+        <div id="questionPrompt"></div>
+        <div id="options" class="options-list"></div>
+        <button id="nextQuestionBtn" class="next-btn" style="display: none;">Next Step</button>
+      </div>
+      <div class="score-section">
+        <p id="scoreDisplay">Score: 0</p>
+        <p id="roundDisplay"></p>
+      </div>
+      <button id="endGameBtn" class="end-game-btn" style="display: none;">End Game</button>
+    </div>
+
+    <!-- End Screen -->
+    <div id="endScreen" class="hidden">
+      <h1>Game Over</h1>
+      <p id="finalScore"></p>
+      <button id="restartBtn" class="next-btn">Restart Game</button>
+    </div>
+  </div>
+
+  <script>
+    // Array of inequality questions
+
+const questions = [
+  // Q1
+  {
+    equation: "2x - 3 > 5x + 9",
+    step1options: [
+      {option:"\\(-3x > 12\\)", correct:true},
+      {option:"\\(3x > 6\\)", correct:false},
+      {option:"\\(-3x < -6\\)", correct:false},
+      {option:"\\(3x > 12\\)", correct:false},
+      {option:"\\(3x > 6\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x < -4\\)", correct:true},
+      {option:"\\(x > -4\\)", correct:false},
+      {option:"\\(x < 15\\)", correct:false},
+      {option:"\\(x > 4\\)", correct:false},
+      {option:"\\(x > 15\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, -4)\\)", correct:true},
+      {option:"\\(( -\\infty, -4]\\)", correct:false},
+      {option:"\\([ -4, \\infty)\\)", correct:false},
+      {option:"\\((-4, \\infty)\\)", correct:false},
+      {option:"\\((4, \\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q2
+  {
+    equation: "-3x + 5 \\leq 2x - 7",
+    step1options: [
+      {option:"\\(-5x \\leq -12\\)", correct:true},
+      {option:"\\(5x \\leq -12\\)", correct:false},
+      {option:"\\(-5x \\leq -2\\)", correct:false},
+      {option:"\\(5x \\leq -2\\)", correct:false},
+      {option:"\\(5x \\leq 12\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\geq \\tfrac{12}{5}\\)", correct:true},
+      {option:"\\(x \\leq \\tfrac{12}{5}\\)", correct:false},
+      {option:"\\(x \\geq \\tfrac{5}{12}\\)", correct:false},
+      {option:"\\(x \\leq -\\tfrac{5}{12}\\)", correct:false},
+      {option:"\\(x \\geq -17\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\([\\tfrac{12}{5}, \\infty)\\)", correct:true},
+      {option:"\\((\\tfrac{12}{5}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{12}{5})\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{12}{5}]\\)", correct:false},
+      {option:"\\((\\tfrac{12}{5}, \\infty]\\)", correct:false}
+    ]
+  },
+
+  // Q3
+  {
+    equation: "4x + 2 \\geq 2x + 3",
+    step1options: [
+      {option:"\\(2x \\geq 1\\)", correct:true},
+      {option:"\\(2x \\leq 1\\)", correct:false},
+      {option:"\\(6x \\geq 5\\)", correct:false},
+      {option:"\\(6x \\geq -1\\)", correct:false},
+      {option:"\\(2x \\geq -1\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\geq \\tfrac{1}{2}\\)", correct:true},
+      {option:"\\(x \\leq \\tfrac{1}{2}\\)", correct:false},
+      {option:"\\(x \\geq 2\\)", correct:false},
+      {option:"\\(x \\leq -1\\)", correct:false},
+      {option:"\\(x \\leq 1\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\([\\tfrac{1}{2}, \\infty)\\)", correct:true},
+      {option:"\\((\\tfrac{1}{2}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{1}{2})\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{1}{2}]\\)", correct:false},
+      {option:"\\((\\tfrac{1}{2}, \\infty]\\)", correct:false}
+    ]
+  },
+
+  // Q4
+  {
+    equation: "-2x - 5 \\geq 3x + 4",
+    step1options: [
+      {option:"\\(-5x \\geq 9\\)", correct:true},
+      {option:"\\(5x \\geq 9\\)", correct:false},
+      {option:"\\(-5x \\geq -1\\)", correct:false},
+      {option:"\\(5x \\geq -1\\)", correct:false},
+      {option:"\\(-5x \\geq -9\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\leq -\\tfrac{9}{5}\\)", correct:true},
+      {option:"\\(x \\geq \\tfrac{9}{5}\\)", correct:false},
+      {option:"\\(x \\leq \\tfrac{5}{9}\\)", correct:false},
+      {option:"\\(x \\geq -\\tfrac{5}{9}\\)", correct:false},
+      {option:"\\(x \\geq -\\tfrac{9}{5}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, -\\tfrac{9}{5}]\\)", correct:true},
+      {option:"\\(( -\\infty, -\\tfrac{9}{5})\\)", correct:false},
+      {option:"\\([-\\tfrac{9}{5}, \\infty)\\)", correct:false},
+      {option:"\\((\\tfrac{9}{5}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{9}{5}]\\)", correct:false}
+    ]
+  },
+
+  // Q5
+  {
+    equation: "5x + 10 > 2x - 2",
+    step1options: [
+      {option:"\\(3x > -12\\)", correct:true},
+      {option:"\\(7x > -12\\)", correct:false},
+      {option:"\\(-3x > 12\\)", correct:false},
+      {option:"\\(7x > 12\\)", correct:false},
+      {option:"\\(10x > -12\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > -4\\)", correct:true},
+      {option:"\\(x < -4\\)", correct:false},
+      {option:"\\(x > -15\\)", correct:false},
+      {option:"\\(x < 15\\)", correct:false},
+      {option:"\\(x < -9\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((-4, \\infty)\\)", correct:true},
+      {option:"\\([ -4, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, -4)\\)", correct:false},
+      {option:"\\(( -\\infty, -4]\\)", correct:false},
+      {option:"\\((4, \\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q6
+  {
+    equation: "-x + 7 < 3x - 5",
+    step1options: [
+      {option:"\\(-4x < -12\\)", correct:true},
+      {option:"\\(4x < -12\\)", correct:false},
+      {option:"\\(-4x < 2\\)", correct:false},
+      {option:"\\(4x < 2\\)", correct:false},
+      {option:"\\(2x < 12\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > 3\\)", correct:true},
+      {option:"\\(x < 3\\)", correct:false},
+      {option:"\\(x > -3\\)", correct:false},
+      {option:"\\(x < -8\\)", correct:false},
+      {option:"\\(x < -16\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((3, \\infty)\\)", correct:true},
+      {option:"\\([3, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 3)\\)", correct:false},
+      {option:"\\(( -\\infty, 3]\\)", correct:false},
+      {option:"\\([3, -\\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q7
+  {
+    equation: "2x - 4 \\geq -x + 8",
+    step1options: [
+      {option:"\\(3x \\geq 12\\)", correct:true},
+      {option:"\\(3x \\geq 4\\)", correct:false},
+      {option:"\\(3x > 12\\)", correct:false},
+      {option:"\\(3x > 4\\)", correct:false},
+      {option:"\\(3x \\geq -4\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\geq 4\\)", correct:true},
+      {option:"\\(x \\leq 4\\)", correct:false},
+      {option:"\\(x \\geq 9\\)", correct:false},
+      {option:"\\(x \\leq 9\\)", correct:false},
+      {option:"\\(x > 9\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\([4, \\infty)\\)", correct:true},
+      {option:"\\((4, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 4]\\)", correct:false},
+      {option:"\\(( -\\infty, 4)\\)", correct:false},
+      {option:"\\((4, -\\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q8
+  {
+    equation: "6x + 1 \\leq 2x - 3",
+    step1options: [
+      {option:"\\(4x \\leq -4\\)", correct:true},
+      {option:"\\(4x \\geq 4\\)", correct:false},
+      {option:"\\(4x < -4\\)", correct:false},
+      {option:"\\(4x > -4\\)", correct:false},
+      {option:"\\(4x \\geq -4\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\leq -1\\)", correct:true},
+      {option:"\\(x \\geq -1\\)", correct:false},
+      {option:"\\(x < -1\\)", correct:false},
+      {option:"\\(x > -1\\)", correct:false},
+      {option:"\\(x \\geq 1\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, -1]\\)", correct:true},
+      {option:"\\(( -\\infty, -1)\\)", correct:false},
+      {option:"\\([-1, \\infty)\\)", correct:false},
+      {option:"\\((-1, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 1]\\)", correct:false}
+    ]
+  },
+
+  // Q9
+  {
+    equation: "x + 2 < 3x - 4",
+    step1options: [
+      {option:"\\(-2x < -6\\)", correct:true},
+      {option:"\\(2x < 6\\)", correct:false},
+      {option:"\\(-2x > 6\\)", correct:false},
+      {option:"\\(2x > 2\\)", correct:false},
+      {option:"\\(-2x < 2\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > 3\\)", correct:true},
+      {option:"\\(x < 3\\)", correct:false},
+      {option:"\\(x \\geq 3\\)", correct:false},
+      {option:"\\(x < -4\\)", correct:false},
+      {option:"\\(x > -4\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((3, \\infty)\\)", correct:true},
+      {option:"\\([3, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 3)\\)", correct:false},
+      {option:"\\([-\\infty, 3]\\)", correct:false},
+      {option:"\\((3, -\\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q10
+  {
+    equation: "4x - 9 \\geq 2x + 1",
+    step1options: [
+      {option:"\\(2x \\geq 10\\)", correct:true},
+      {option:"\\(2x \\leq 10\\)", correct:false},
+      {option:"\\(2x > 10\\)", correct:false},
+      {option:"\\(2x < 10\\)", correct:false},
+      {option:"\\(2x \\geq 5\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\geq 5\\)", correct:true},
+      {option:"\\(x \\leq 5\\)", correct:false},
+      {option:"\\(x > 5\\)", correct:false},
+      {option:"\\(x \\leq \\tfrac{1}{5}\\)", correct:false},
+      {option:"\\(x \\geq \\tfrac{1}{5}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\([5, \\infty)\\)", correct:true},
+      {option:"\\((5, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 5]\\)", correct:false},
+      {option:"\\(( -\\infty, 5)\\)", correct:false},
+      {option:"\\((5, -\\infty)\\)", correct:false}
+    ]
+  },
+
+// Q11
+  {
+    equation: "\\tfrac{6x}{2} - 4 > x + 8",
+    step1options: [
+      {option:"\\(2x > 12\\)", correct:true},
+      {option:"\\(2x < 12\\)", correct:false},
+      {option:"\\(3x > 12\\)", correct:false},
+      {option:"\\(2x > 6\\)", correct:false},
+      {option:"\\(x > 12\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > 6\\)", correct:true},
+      {option:"\\(x < 6\\)", correct:false},
+      {option:"\\(x > 10\\)", correct:false},
+      {option:"\\(x > 12\\)", correct:false},
+      {option:"\\(x < 12\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((6, \\infty)\\)", correct:true},
+      {option:"\\([6, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 6)\\)", correct:false},
+      {option:"\\((6, 12)\\)", correct:false},
+      {option:"\\([6, 12)\\)", correct:false}
+    ]
+  },
+
+  // Q12 - New
+  {
+    equation: "\\tfrac{7x}{2} + 3 < 5x - 4",
+    step1options: [
+      {option:"\\(-\\tfrac{3}{2}x < -7\\)", correct:true},
+      {option:"\\(\\tfrac{3}{2}x < -7\\)", correct:false},
+      {option:"\\(-\\tfrac{3}{2}x < 7\\)", correct:false},
+      {option:"\\(\\tfrac{3}{2}x < 7\\)", correct:false},
+      {option:"\\(-\\tfrac{3}{2}x < 7\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > \\tfrac{14}{3}\\)", correct:true},
+      {option:"\\(x < \\tfrac{14}{3}\\)", correct:false},
+      {option:"\\(x > \\tfrac{7}{3}\\)", correct:false},
+      {option:"\\(x < -\\tfrac{14}{3}\\)", correct:false},
+      {option:"\\(x > -\\tfrac{14}{3}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((\\tfrac{14}{3}, \\infty)\\)", correct:true},
+      {option:"\\([\\tfrac{14}{3}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{14}{3})\\)", correct:false},
+      {option:"\\((\\tfrac{14}{3}, \\infty]\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{14}{3}]\\)", correct:false}
+    ]
+  },
+
+  // Q13 - New
+  {
+    equation: "\\tfrac{x}{3} - 4 \\geq \\tfrac{2x}{3} + 5",
+    step1options: [
+      {option:"\\(-\\tfrac{1}{3}x \\geq 9\\)", correct:true},
+      {option:"\\(\\tfrac{1}{3}x \\geq 9\\)", correct:false},
+      {option:"\\(-\\tfrac{2}{3}x \\geq 1\\)", correct:false},
+      {option:"\\(\\tfrac{1}{3}x \\geq 1\\)", correct:false},
+      {option:"\\(-\\tfrac{2}{3}x \\geq 9\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\leq -27\\)", correct:true},
+      {option:"\\(x \\geq -27\\)", correct:false},
+      {option:"\\(x \\leq -3\\)", correct:false},
+      {option:"\\(x \\geq -3\\)", correct:false},
+      {option:"\\(x \\leq 3\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, -27]\\)", correct:true},
+      {option:"\\(( -\\infty, -27)\\)", correct:false},
+      {option:"\\([-27, \\infty)\\)", correct:false},
+      {option:"\\(( -27, \\infty)\\)", correct:false},
+      {option:"\\((27, \\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q14
+  {
+    equation: "\\tfrac{10x}{2} - 15 > 2x + 20",
+    step1options: [
+      {option:"\\(3x > 35\\)", correct:true},
+      {option:"\\(3x < 35\\)", correct:false},
+      {option:"\\(5x > 35\\)", correct:false},
+      {option:"\\(3x > 30\\)", correct:false},
+      {option:"\\(3x > 40\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > \\tfrac{35}{3}\\)", correct:true},
+      {option:"\\(x > 33\\)", correct:false},
+      {option:"\\(x > 32\\)", correct:false},
+      {option:"\\(x > 38\\)", correct:false},
+      {option:"\\(x > \\tfrac{3}{35}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((\\tfrac{35}{3}, \\infty)\\)", correct:true},
+      {option:"\\([\\tfrac{35}{3}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{35}{3})\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{35}{3}]\\)", correct:false},
+      {option:"\\((\\tfrac{35}{3}, \\infty]\\)", correct:false}
+    ]
+  },
+
+  // Q15
+  {
+    equation: "\\tfrac{-4x}{2} + 8 \\geq 5x - 3",
+    step1options: [
+      {option:"\\(-7x \\geq -11\\)", correct:true},
+      {option:"\\(7x \\geq -11\\)", correct:false},
+      {option:"\\(-7x \\leq -11\\)", correct:false},
+      {option:"\\(7x \\leq -11\\)", correct:false},
+      {option:"\\(-7x > -11\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\leq \\tfrac{11}{7}\\)", correct:true},
+      {option:"\\(x \\geq \\tfrac{11}{7}\\)", correct:false},
+      {option:"\\(x \\leq \\tfrac{7}{11}\\)", correct:false},
+      {option:"\\(x \\geq -\\tfrac{7}{11}\\)", correct:false},
+      {option:"\\(x \\leq -\\tfrac{11}{7}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, \\tfrac{11}{7}]\\)", correct:true},
+      {option:"\\(( -\\infty, \\tfrac{11}{7})\\)", correct:false},
+      {option:"\\([-\\tfrac{11}{7}, \\infty)\\)", correct:false},
+      {option:"\\((\\tfrac{11}{7}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, -\\tfrac{11}{7}]\\)", correct:false}
+    ]
+  },
+
+  // Q16 - New
+  {
+    equation: "\\tfrac{5x}{2} + 7 > 3x + 9",
+    step1options: [
+      {option:"\\(-\\tfrac{1}{2}x > 2\\)", correct:true},
+      {option:"\\(\\tfrac{1}{2}x > 2\\)", correct:false},
+      {option:"\\(-\\tfrac{1}{2}x < 2\\)", correct:false},
+      {option:"\\(\\tfrac{1}{2}x > 16\\)", correct:false},
+      {option:"\\(-\\tfrac{1}{2}x > 16\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x < -4\\)", correct:true},
+      {option:"\\(x > -4\\)", correct:false},
+      {option:"\\(x < -1\\)", correct:false},
+      {option:"\\(x > -1\\)", correct:false},
+      {option:"\\(x < \\tfrac{3}{2}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, -4)\\)", correct:true},
+      {option:"\\([ -\\infty, -4)\\)", correct:false},
+      {option:"\\(( -\\infty, -4]\\)", correct:false},
+      {option:"\\((-4, \\infty)\\)", correct:false},
+      {option:"\\([-4, \\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q17 - New
+  {
+    equation: "\\tfrac{x}{2} - 7 \\geq \\tfrac{3x}{4} + 5",
+    step1options: [
+      {option:"\\(-\\tfrac{1}{4}x \\geq 12\\)", correct:true},
+      {option:"\\(\\tfrac{1}{4}x \\geq 12\\)", correct:false},
+      {option:"\\(-\\tfrac{1}{4}x \\leq 12\\)", correct:false},
+      {option:"\\(\\tfrac{1}{2}x \\leq 12\\)", correct:false},
+      {option:"\\(-\\tfrac{1}{2}x \\geq 12\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\leq -48\\)", correct:true},
+      {option:"\\(x \\geq -48\\)", correct:false},
+      {option:"\\(x > -48\\)", correct:false},
+      {option:"\\(x \\geq -3\\)", correct:false},
+      {option:"\\(x \\leq -3\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, -48]\\)", correct:true},
+      {option:"\\(( -\\infty, -48)\\)", correct:false},
+      {option:"\\([-48, \\infty)\\)", correct:false},
+      {option:"\\((-48, \\infty)\\)", correct:false},
+      {option:"\\((48, \\infty)\\)", correct:false}
+    ]
+  },
+
+  // Q18
+  {
+    equation: "\\tfrac{x}{4} + 9 > 6x - 2",
+    step1options: [
+      {option:"\\(-\\tfrac{23}{4}x > -11\\)", correct:true},
+      {option:"\\(\\tfrac{23}{4}x > -11\\)", correct:false},
+      {option:"\\(-\\tfrac{23}{4}x < -11\\)", correct:false},
+      {option:"\\(\\tfrac{23}{4}x < -11\\)", correct:false},
+      {option:"\\(-\\tfrac{23}{4}x > 11\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x < \\tfrac{44}{23}\\)", correct:true},
+      {option:"\\(x > \\tfrac{23}{44}\\)", correct:false},
+      {option:"\\(x < -\\tfrac{44}{23}\\)", correct:false},
+      {option:"\\(x > -\\tfrac{44}{23}\\)", correct:false},
+      {option:"\\(x < \\tfrac{23}{44}\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\(( -\\infty, \\tfrac{44}{23})\\)", correct:true},
+      {option:"\\([\\tfrac{44}{23}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, -\\tfrac{44}{23}]\\)", correct:false},
+      {option:"\\((\\tfrac{44}{23}, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, \\tfrac{44}{23}]\\)", correct:false}
+    ]
+  },
+
+  // Q19
+  {
+    equation: "25x - 50 > -5x + 100",
+    step1options: [
+      {option:"\\(30x > 150\\)", correct:true},
+      {option:"\\(30x > 50\\)", correct:false},
+      {option:"\\(20x > 150\\)", correct:false},
+      {option:"\\(30x > 100\\)", correct:false},
+      {option:"\\(20x > 50\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x > 5\\)", correct:true},
+      {option:"\\(x > 120\\)", correct:false},
+      {option:"\\(x > 10\\)", correct:false},
+      {option:"\\(x > 50\\)", correct:false},
+      {option:"\\(x > 45\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\((5, \\infty)\\)", correct:true},
+      {option:"\\([5, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 5)\\)", correct:false},
+      {option:"\\(( -\\infty, 5]\\)", correct:false},
+      {option:"\\((\\infty,5)\\)", correct:false}
+    ]
+  },
+
+  // Q20
+  {
+    equation: "\\tfrac{-30x}{3} + 60 \\leq 10x - 20",
+    step1options: [
+      {option:"\\(-20x \\leq -80\\)", correct:true},
+      {option:"\\(20x \\leq -80\\)", correct:false},
+      {option:"\\(-20x \\geq -80\\)", correct:false},
+      {option:"\\(40x \\geq -80\\)", correct:false},
+      {option:"\\(-40x \\leq -80\\)", correct:false}
+    ],
+    step2options: [
+      {option:"\\(x \\geq 4\\)", correct:true},
+      {option:"\\(x \\leq 4\\)", correct:false},
+      {option:"\\(x \\geq -40\\)", correct:false},
+      {option:"\\(x \\leq -40\\)", correct:false},
+      {option:"\\(x \\geq 40\\)", correct:false}
+    ],
+    step3options: [
+      {option:"\\([4, \\infty)\\)", correct:true},
+      {option:"\\((4, \\infty)\\)", correct:false},
+      {option:"\\(( -\\infty, 4)\\)", correct:false},
+      {option:"\\(( -\\infty, 4]\\)", correct:false},
+      {option:"\\((-4, 4]\\)", correct:false}
+    ]
+  }
+];
+
+
+
+
+    // Game Variables and DOM element setup
+    let currentQuestionIndex = 0;
+    let currentPart = 1; 
+    let score = 0;
+    let roundsPlayed = 0;
+    let gameLength = '10';
+    let problemOrder = 'random';
+    let selectedQuestions = [];
+
+    const mainMenu = document.getElementById('mainMenu');
+    const howToBtn = document.getElementById('howToBtn');
+    const playNowBtn = document.getElementById('playNowBtn');
+    const instructionsScreen = document.getElementById('instructionsScreen');
+    const backBtn = document.getElementById('backBtn');
+    const gameContent = document.getElementById('gameContent');
+    const questionText = document.getElementById('questionText');
+    const integralDisplay = document.getElementById('integralDisplay');
+    const questionPrompt = document.getElementById('questionPrompt');
+    const optionsContainer = document.getElementById('options');
+    const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const roundDisplay = document.getElementById('roundDisplay');
+    const endGameBtn = document.getElementById('endGameBtn');
+    const endScreen = document.getElementById('endScreen');
+    const finalScore = document.getElementById('finalScore');
+    const restartBtn = document.getElementById('restartBtn');
+    const orderSelect = document.getElementById('orderSelect');
+    const lengthSelect = document.getElementById('lengthSelect');
+
+    howToBtn.addEventListener('click', showInstructions);
+    backBtn.addEventListener('click', showMainMenu);
+    playNowBtn.addEventListener('click', startGame);
+    nextQuestionBtn.addEventListener('click', proceedToNext);
+    endGameBtn.addEventListener('click', endGame);
+    restartBtn.addEventListener('click', restartGame);
+
+    function showInstructions() {
+      mainMenu.classList.add('hidden');
+      instructionsScreen.classList.remove('hidden');
+    }
+
+    function showMainMenu() {
+      instructionsScreen.classList.add('hidden');
+      mainMenu.classList.remove('hidden');
+    }
+
+    function startGame() {
+      problemOrder = orderSelect.value;
+      gameLength = lengthSelect.value;
+
+      if (problemOrder === 'random') {
+        selectedQuestions = [...questions].sort(() => Math.random() - 0.5);
+      } else {
+        selectedQuestions = [...questions];
+      }
+
+      if (gameLength !== 'max') {
+        selectedQuestions = selectedQuestions.slice(0, parseInt(gameLength));
+      }
+
+      currentQuestionIndex = 0;
+      currentPart = 1;
+      score = 0;
+      roundsPlayed = 0;
+      scoreDisplay.textContent = `Score: ${score}`;
+      roundDisplay.textContent = `Round: ${roundsPlayed + 1}/${gameLength === 'max' ? selectedQuestions.length : gameLength}`;
+
+      mainMenu.classList.add('hidden');
+      gameContent.classList.remove('hidden');
+
+      setupQuestion();
+    }
+
+    function setupQuestion() {
+      if (currentQuestionIndex >= selectedQuestions.length) {
+        endGame();
+        return;
+      }
+
+      currentPart = 1;
+      nextQuestionBtn.style.display = 'none';
+      endGameBtn.style.display = 'inline';
+      optionsContainer.innerHTML = '';
+
+      const currentQuestion = selectedQuestions[currentQuestionIndex];
+      questionText.textContent = 'Solve the Inequality:';
+      integralDisplay.innerHTML = `\\(\\displaystyle ${currentQuestion.equation}\\)`;
+      questionPrompt.textContent = 'Step 1: Separate variables from constants. Combine like terms.';
+      generateOptions(currentQuestion.step1options);
+
+      roundsPlayed++;
+      roundDisplay.textContent = `Round: ${roundsPlayed}/${gameLength === 'max' ? selectedQuestions.length : gameLength}`;
+
+      MathJax.typesetPromise();
+    }
+
+    function generateOptions(options) {
+      optionsContainer.innerHTML = '';
+      options.sort(() => Math.random() - 0.5);
+      options.forEach(optionObj => {
+        const button = document.createElement('button');
+        button.innerHTML = optionObj.option;
+        button.optionObj = optionObj;
+        button.onclick = () => checkAnswer(optionObj, button);
+        optionsContainer.appendChild(button);
+      });
+      MathJax.typesetPromise();
+    }
+
+    function checkAnswer(optionObj, button) {
+      const buttons = optionsContainer.querySelectorAll('button');
+      buttons.forEach(btn => { btn.disabled = true; });
+
+      if (optionObj.correct) {
+        button.classList.add('correct');
+        score += 10;
+      } else {
+        button.classList.add('incorrect');
+        score = Math.max(0, score - 5);
+        buttons.forEach(btn => {
+          if (btn.optionObj && btn.optionObj.correct) {
+            btn.classList.add('correct');
+            const infoSpan = document.createElement('span');
+            infoSpan.className = 'info-text';
+            infoSpan.textContent = ' Correct Answer';
+            btn.appendChild(infoSpan);
+          }
+        });
+      }
+
+      scoreDisplay.textContent = `Score: ${score}`;
+      nextQuestionBtn.style.display = 'inline';
+      nextQuestionBtn.textContent = currentPart === 3 ? 'Next Problem' : 'Next Step';
+    }
+
+    function proceedToNext() {
+      nextQuestionBtn.style.display = 'none';
+      const currentQuestion = selectedQuestions[currentQuestionIndex];
+
+      if (currentPart === 1) {
+        currentPart = 2;
+        const correctForm = currentQuestion.step1options.find(o => o.correct).option;
+        questionPrompt.innerHTML = `Step 2: Isolate x.<br>HINT: The inequality is equivalent to ${correctForm}`;
+        generateOptions(currentQuestion.step2options);
+      } else if (currentPart === 2) {
+        currentPart = 3;
+        const correctSimplified = currentQuestion.step2options.find(o => o.correct).option;
+        questionPrompt.innerHTML = `Step 3: Express the solution in interval notation.<br>HINT: The solution is ${correctSimplified}`;
+        generateOptions(currentQuestion.step3options);
+      } else {
+        currentQuestionIndex++;
+        setupQuestion();
+      }
+      MathJax.typesetPromise();
+    }
+
+    function endGame() {
+      gameContent.classList.add('hidden');
+      endScreen.classList.remove('hidden');
+      finalScore.textContent = `Your final score is: ${score}`;
+    }
+
+    function restartGame() {
+      currentQuestionIndex = 0;
+      currentPart = 1;
+      score = 0;
+      roundsPlayed = 0;
+      scoreDisplay.textContent = `Score: ${score}`;
+      endScreen.classList.add('hidden');
+      mainMenu.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
